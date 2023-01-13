@@ -9,7 +9,7 @@ import (
 
 func TestReadCsv(t *testing.T) {
 	t.Run("Should return an error if no file is found it", func(t *testing.T) {
-		filePath := "movies"
+		filePath := "invalid_path"
 		_, err := ReadCSV(filePath)
 
 		expected := fileNotFound
