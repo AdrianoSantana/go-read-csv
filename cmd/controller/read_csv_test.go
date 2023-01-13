@@ -7,8 +7,9 @@ func TestReadCsv(t *testing.T) {
 		filePath := "../movies"
 		_, err := ReadCSV(filePath)
 
-		if err == nil {
-			t.Errorf("it was expected an error")
+		expected := fileNotFound
+		if err != expected {
+			t.Errorf("Result: '%s' Expected: '%s'", err, expected)
 		}
 	})
 }
