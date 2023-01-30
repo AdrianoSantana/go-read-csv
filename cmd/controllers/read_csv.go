@@ -7,27 +7,28 @@ import (
 	"strconv"
 
 	"github.com/AdrianoSantana/go-read-csv/cmd/models"
+	"github.com/AdrianoSantana/go-read-csv/cmd/repositories"
 )
 
 var fileNotFound error = errors.New("Não foi possivel encontrar um arquivo com o caminho especificado")
 
-func ReadCSV(filePath string) ([]models.Movie, error) {
+func ReadCSV(fp string, r repositories.MovieRepository) (int, error) {
 	movies := []models.Movie{}
 
-	_, err := os.Stat(filePath)
+	_, err := os.Stat(fp)
 	if err != nil {
-		return nil, fileNotFound
+		return 0, fileNotFound
 	}
 
-	csvFile, err := os.Open(filePath)
+	csvFile, err := os.Open(fp)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	defer csvFile.Close()
 
 	lines, err := csv.NewReader(csvFile).ReadAll()
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	for _, line := range lines {
@@ -42,5 +43,11 @@ func ReadCSV(filePath string) ([]models.Movie, error) {
 		}
 		movies = append(movies, mv)
 	}
-	return movies, nil
+
+	insertedMovies := r.Insert(movies)
+	if err != nil {
+		return 0, err
+	}
+
+	return insertedMovies, nil
 }
