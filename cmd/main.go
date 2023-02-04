@@ -10,9 +10,11 @@ import (
 
 func main() {
 	pathFile := "../movies"
-	rp := repositories.MovieRepositorySqlite{}
+	rp := repositories.MovieRepositorySqlite{
+		DatabaseConn: "./database/movies-csv.db",
+	}
 
-	insertedMovies, err := controller.ReadCSV(pathFile, rp)
+	insertedMovies, err := controller.CreateData(pathFile, rp)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -13,10 +13,16 @@ import (
 var wg sync.WaitGroup
 var mut sync.Mutex
 
-type MovieRepositorySqlite struct{}
+type MovieRepositorySqlite struct {
+	DatabaseConn string
+}
 
 func (mv MovieRepositorySqlite) Insert(movies []models.Movie) (insertedMovies int) {
-	db, err := sql.Open("sqlite3", "./database/movies-csv.db")
+	db, err := sql.Open("sqlite3", mv.DatabaseConn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = createOrGetTable(db)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,19 +34,19 @@ func (mv MovieRepositorySqlite) Insert(movies []models.Movie) (insertedMovies in
 	}
 
 	for _, movie := range movies {
-		go saveMovieInDB(db, movie)
+		go saveMovieInDB(db, movie, &insertedMovies)
 		wg.Add(1)
 	}
 	wg.Wait()
 	return
 }
 
-func saveMovieInDB(db *sql.DB, movie models.Movie) {
+func saveMovieInDB(db *sql.DB, movie models.Movie, insertedMovies *int) {
 	defer wg.Done()
 	mut.Lock()
 	defer mut.Unlock()
 	insertInDatabase(db, movie)
-
+	*insertedMovies += 1
 }
 
 func insertInDatabase(db *sql.DB, movie models.Movie) {

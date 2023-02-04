@@ -4,4 +4,5 @@ type Movie struct {
 	ID     int
 	Title  string
 	Genres string
+	Year int
 }
